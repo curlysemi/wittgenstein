@@ -145,7 +145,6 @@ li.wit-item:before {
             line = line + (CLOSE_OL * (previous_num_stars)) + '\n'
         output.append(line)
         lucky_stars_are_numbered = False
-        added_css = False
         star_counts = {}
         previous_num_stars = 0
 

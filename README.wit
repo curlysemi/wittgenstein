@@ -72,6 +72,8 @@ Keep in mind this is a proof-of-concept written on a Saturday night. Currently, 
 
 It was first a simple generator of indentions for plaintext files and then I decided I wanted to be able to generate Markdown files. Since Markdown supports HTML, the way Wittgenstein works _for Markdown_ is to simply generate HTML tags and let CSS handle the numbering. (Since I added support for Markdown _after_ I had figured out the more-straightforward indention logic for plaintext (which didn't actually require me to do any lookaheads or lookbacks), the logic I added for handling nested HTML tags is confusing as heck — but it works.)
 
+Apparently, GitHub doesn't support `<styles>` in Markdown, so the numbering appears incorrect there. 😭 
+
 There's still support for the plain, indention-based numbering. I'm leaving the HTML mode as the default because it is more impressive.
 
 

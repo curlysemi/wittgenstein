@@ -10,54 +10,6 @@ li.wit-item:before {
   counter-increment: item
 }
 </style>
-<style>
-ol.wit-nest {
-  counter-reset: item
-}
-li.wit-item {
-  display: block
-}
-li.wit-item:before {
-  content: counters(item, ".") ". ";
-  counter-increment: item
-}
-</style>
-<style>
-ol.wit-nest {
-  counter-reset: item
-}
-li.wit-item {
-  display: block
-}
-li.wit-item:before {
-  content: counters(item, ".") ". ";
-  counter-increment: item
-}
-</style>
-<style>
-ol.wit-nest {
-  counter-reset: item
-}
-li.wit-item {
-  display: block
-}
-li.wit-item:before {
-  content: counters(item, ".") ". ";
-  counter-increment: item
-}
-</style>
-<style>
-ol.wit-nest {
-  counter-reset: item
-}
-li.wit-item {
-  display: block
-}
-li.wit-item:before {
-  content: counters(item, ".") ". ";
-  counter-increment: item
-}
-</style>
 # Wittgenstein Markup Language (`.wit`)
 The markup language you would use to write the _Tractatus Logico-Philosophicus_ and not have to worry about the numbering. 🙂
 
@@ -128,6 +80,8 @@ Keep in mind this is a proof-of-concept written on a Saturday night. Currently, 
 
 It was first a simple generator of indentions for plaintext files and then I decided I wanted to be able to generate Markdown files. Since Markdown supports HTML, the way Wittgenstein works _for Markdown_ is to simply generate HTML tags and let CSS handle the numbering. (Since I added support for Markdown _after_ I had figured out the more-straightforward indention logic for plaintext (which didn't actually require me to do any lookaheads or lookbacks), the logic I added for handling nested HTML tags is confusing as heck — but it works.)
 
+Apparently, GitHub doesn't support `<styles>` in Markdown, so the numbering appears incorrect there. 😭 
+
 There's still support for the plain, indention-based numbering. I'm leaving the HTML mode as the default because it is more impressive.
 
 
@@ -137,7 +91,6 @@ The following is a complicated nesting example (I'm actually using this README t
 <ol class="wit-nest"><li class="wit-item">The world is all that is the case.<ol class="wit-nest"><li class="wit-item">The world is the totality of facts, not of things.<ol class="wit-nest"><li class="wit-item">The world is determined by the facts, and by their being all the facts.</li><li class="wit-item">For the totality of facts determines what is the case, and also whatever is not the case.</li><li class="wit-item">The facts in logical space are the world.</li></ol></li><li class="wit-item">The world divides into facts.<ol class="wit-nest"><li class="wit-item">Each item can be the case or not the case while everything else remains the same.</li>
 </ol></ol></ol>
 And because I don't wish to include the full _Tractatus Logico-Philosophicus_ in this README, we'll provide an nesting edge-case:
-
 
 <ol class="wit-nest"><li class="wit-item">This is a simple item<ol class="wit-nest"><li class="wit-item"><ol class="wit-nest"><li class="wit-item"><ol class="wit-nest"><li class="wit-item">This is a complicated item with some empty parent nodes</li></ol></li><li class="wit-item">This is actually a more complicated item<ol class="wit-nest"><li class="wit-item">An earlier version had bugs and gave the wrong numbers in these situations</li></ol></li></ol></li></ol></li><li class="wit-item">This is another simple item<ol class="wit-nest"><li class="wit-item">We want to make sure that this item (and its successors) is numbered properly<ol class="wit-nest"><li class="wit-item">Is this one numbered correctly?<ol class="wit-nest"><li class="wit-item">What about this one?</li><li class="wit-item">Don't forget this one!</li>
 </ol></ol></ol></ol>
