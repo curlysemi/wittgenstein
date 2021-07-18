@@ -5,7 +5,7 @@ The markup language you would use to write the _Tractatus Logico-Philosophicus_ 
 Markdown doesn't support nested numbering like the following:
 
 1* First item
-** First item's first sub-item
+    * First item's first sub-item
 * Second Item
 
 If you tried to do it, you might write something like this:
@@ -20,8 +20,6 @@ But you would unfortunately get something that looks like this:
 1. First item
     1.1. First item's first sub-item
 2. Second Item
-
-
 
 While you could manage the numbering by hand manually via some hacky solutions, if you later need to _insert_ an item, you have to do a lot of renumbering. It sucks and is not something you can do easily once you start having to manage larger nested lists.
 
@@ -39,7 +37,6 @@ Our renumbering concern applies to the normal ordered lists that Markdown suppor
 
 But, again, there's something really annoying about having to renumber extensive lists.
 
-
 So, as an alternate syntax, how about this instead?:
 ```
 1* First Item
@@ -54,21 +51,22 @@ And, it works:
 * Second Item
 * Third Item
 
-
-Now, taking the previous innovation in mind, we added support for our numbered nesting simply by indicating each level clearly. (This theoretically could be done with whitespace alone, but this proof-of-concept opted for multiple star characters instead.)
+Now, taking the previous innovation in mind, we added support for our numbered nesting simply by indicating each level clearly.
 
 So, here is the original markup for the first example we gave:
 ```
 1* First item
-** First item's first sub-item
+    * First item's first sub-item
 * Second Item
 ```
 
 And it works, too, because this very README used this Wittgenstein-influenced markup language to produce its examples. (The very first example of a list we gave in this README was originally written in this style.)
 
+So, basically, indent (with 4 spaces) as you would normally, and Wittgenstein does the rest!
+
 
 ## How Wittgenstein Works
-Keep in mind this is a proof-of-concept written on a Saturday night. Currently, it's a simply Python3 script that does a relatively light transformation on the lines of an inputted text file that start with `*` or `1*`.
+Keep in mind this is a proof-of-concept written on a Saturday night. Currently, it's a simply Python3 script that does a relatively light transformation on the lines of an inputted text file that start with `*` or `1*` (excluding whitespace to also handle lines that correspond to sub-items).
 
 It was first a simple generator of indentions for plaintext files and then I decided I wanted to be able to generate Markdown files. Since Markdown supports HTML, the way Wittgenstein works _for Markdown_ is to simply generate HTML tags and let CSS handle the numbering. (Since I added support for Markdown _after_ I had figured out the more-straightforward indention logic for plaintext (which didn't actually require me to do any lookaheads or lookbacks), the logic I added for handling nested HTML tags is confusing as heck — but it works.)
 
@@ -81,24 +79,30 @@ There's still support for the plain, indention-based numbering. I'm leaving the 
 The following is a complicated nesting example (I'm actually using this README to hold the test cases since this README is written in the `.wit` markup language and is simple being exported to Markdown.).
 
 1* The world is all that is the case.
-** The world is the totality of facts, not of things.
-*** The world is determined by the facts, and by their being all the facts.
-*** For the totality of facts determines what is the case, and also whatever is not the case.
-*** The facts in logical space are the world.
-** The world divides into facts.
-*** Each item can be the case or not the case while everything else remains the same.
+    * The world is the totality of facts, not of things.
+        * The world is determined by the facts, and by their being all the facts.
+        * For the totality of facts determines what is the case, and also whatever is not the case.
+        * The facts in logical space are the world.
+    * The world divides into facts.
+        * Each item can be the case or not the case while everything else remains the same.
 
 And because I don't wish to include the full _Tractatus Logico-Philosophicus_ in this README, we'll provide an nesting edge-case:
 
 1* This is a simple item
-**** This is a complicated item with some empty parent nodes
-*** This is actually a more complicated item
-**** An earlier version had bugs and gave the wrong numbers in these situations
+            * This is a complicated item with some empty parent nodes
+        * This is actually a more complicated item
+            * An earlier version had bugs and gave the wrong numbers in these situations
 * This is another simple item
-** We want to make sure that this item (and its successors) is numbered properly
-*** Is this one numbered correctly?
-**** What about this one?
-**** Don't forget this one!
+    * We want to make sure that this item (and its successors) is numbered properly
+        * Is this one numbered correctly?
+            * What about this one?
+            * Don't forget this one!
+* _What about support for Markdown syntax in the items themselves?_
+
+* Despite the line break above, _we_ have decided we want to consider this part of the same list to allow for more formatting flexibility
+
+
+* BUT, this line starts a new list (because there's two blank lines) (and isn't numbered because it doesn't start with `1*`)
 
 
 ## Future Changes
