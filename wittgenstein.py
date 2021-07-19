@@ -13,12 +13,12 @@ Error: {error}
     print_help()
     sys.exit()
 
-# Check if enough arguments have been given.
-if len(sys.argv) < 3:
-    print_error("Please provide an input file path and an output file path!")
+# # Check if enough arguments have been given.
+# if len(sys.argv) < 3:
+#     print_error("Please provide an input file path and an output file path!")
 
-input_path = sys.argv[1]
-output_path = sys.argv[2]
+input_path = "README.wit"#sys.argv[1]
+output_path = "README.md"#sys.argv[2]
 output_format = "html"
 if len(sys.argv) > 3:
     output_format = sys.argv[3] # for now, this in undocumented behavior
@@ -61,6 +61,9 @@ def lchop(s, prefix):
     return s
 
 output = []
+output_og_idxs = []
+
+item_ids = {}
 
 lucky_stars_are_numbered = False
 added_css = False
@@ -69,12 +72,13 @@ previous_num_stars = 0
 disable = False
 previous_line_blank = False
 
-def close_old_list(line):
+def close_old_list(idx, line):
     global lucky_stars_are_numbered, previous_num_stars, star_counts, previous_line_blank
     # the stars just ended
     if lucky_stars_are_numbered:
         line = ((CLOSE_OL * (previous_num_stars)) + '\n\n') + line
     output.append(line)
+    output_og_idxs.append(idx)
     lucky_stars_are_numbered = False
     star_counts = {}
     previous_num_stars = 0
@@ -85,7 +89,7 @@ for idx, line in enumerate(content):
     # We'll allow empty lines to be put inbetween stars (for the purpose of formatting)
     if str.isspace(line) and previous_num_stars > 0:
         if previous_line_blank:
-            close_old_list(line)
+            close_old_list(idx, line)
         else:
             previous_line_blank = True
         continue
@@ -103,6 +107,7 @@ for idx, line in enumerate(content):
         lucky_stars_are_numbered = True
 
     if USE_HTML_FOR_NESTED_COUNTERS and isStartOfStars and not added_css:
+        output_og_idxs.insert(0, -1)
         output.insert(0, """<style>
 ol.wit-nest {
   counter-reset: item
@@ -149,10 +154,7 @@ ol.wit-nest p {
                 else:
                     star_counts[temp] = 1
                     is_new_branch = num_stars > previous_num_stars and num_stars > 1
-                if USE_HTML_FOR_NESTED_COUNTERS: # CSS will do the counting, so we only need to keep track of open/close tags
-                    pass
-                else:
-                    num = str(star_counts[temp]) + "." + num
+                num = str(star_counts[temp]) + "." + num
                 temp = temp - 1
             if USE_HTML_FOR_NESTED_COUNTERS:
                 opens = OPEN_LI
@@ -164,7 +166,23 @@ ol.wit-nest p {
                 if is_end_branch:
                     diff = (previous_num_stars - num_stars)
                     opens = ((CLOSE_OL + CLOSE_LI) * diff) + opens
-                sanitized_line = lchop(line, '* ')
+                sanitized_line = line
+                if line.startswith('*{'):
+                    try:
+                        item_id = re.match(r'\*{([\w-]+)}', line).group(1)
+                        if item_id in item_ids:
+                            print_error(f'You are reusing the "{item_id}" item ID on line {idx + 1}')
+                        else:
+                            item_ids[item_id] = rchop(num, '.')
+                            sanitized_line = lchop(line, f'*{{{item_id}}} ')
+                            sanitized_line = f'<a name="{item_id}"></a>' + sanitized_line
+                    except SystemExit:
+                        raise
+                    except:
+                        print_error(f'You have a malformed item ID on line {idx + 1}')
+                else:
+                    sanitized_line = lchop(line, '* ')
+                
                 htmlized_line = markdown.markdown(sanitized_line.strip())
                 line = html + opens + htmlized_line + closes
             else:
@@ -174,9 +192,24 @@ ol.wit-nest p {
             line = line
 
         output.append(line)
+        output_og_idxs.append(idx)
         previous_num_stars = num_stars
     else:
-        close_old_list(line)
+        close_old_list(idx, line)
+
+for idx, line in enumerate(output):
+    try:
+        references = re.findall(r'@{([\w-]+)}', line)
+        for ref in references:
+            if ref in item_ids:
+                item_num = item_ids[ref]
+                output[idx] = output[idx].replace(f'@{{{ref}}}', f'<a href="#{ref}">§{item_num}</a>')
+            else:
+                print_error(f'You are using an undefined reference "{ref}" on line {output_og_idxs[idx] + 1}')
+    except SystemExit:
+            raise
+    except:
+        print_error(f'There is a problem (potentially with references) on line {output_og_idxs[idx] + 1}')
 
 with open(output_path, 'w+') as fout:
     fout.writelines(output)

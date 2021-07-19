@@ -98,11 +98,21 @@ And because I don't wish to include the full _Tractatus Logico-Philosophicus_ in
             * What about this one?
             * Don't forget this one!
 * _What about support for Markdown syntax in the items themselves?_
+*{id} If I want to be _able_ to link, I have to give the line an ID
+    *{nested_id} Don't forget nested ones!
+* Then, if I want to make a link, I can simply refer to @{id}.
+    * I can also refer to @{nested_id} (as well as @{id} in the same line)
+        * And I can refer to @{forward_ref}
 
-* Despite the line break above, _we_ have decided we want to consider this part of the same list to allow for more formatting flexibility
+*{forward_ref} Despite the line break above, _we_ have decided we want to consider this part of the same list to allow for more formatting flexibility
 
 
 * BUT, this line starts a new list (because there's two blank lines) (and isn't numbered because it doesn't start with `1*`)
+
+## Dependencies
+```
+pip3 install markdown
+```
 
 
 ## Future Changes
