@@ -1,16 +1,19 @@
 # Wittgenstein Markup Language (`.wit`)
-The markup language you would use to write the _Tractatus Logico-Philosophicus_ and not have to worry about the numbering. 🙂
+The markup language dedicated to writing complicated, nested lists. You could use it to write the next _Tractatus Logico-Philosophicus_ and not have to worry about the numberings (they're all done automatically). 🙂
 
 ## What Wittgenstein Does
-Markdown doesn't support nested numbering like the following:
+Aren't truth tables a great way of organizing the values of logical expressions?
+Don't forget that Wittgenstein _invented_ truth tables as (basically) an aside in his _Tractatus Logico-Philosophicus_. The organizational structure of that work itself is also a great organizational system — it provides a powerful way of organizing related comments/statements/propositions/sections. Whoever wants to make notes quickly in that style can now rejoice, because the Wittgenstein Markup Language takes care of all the hard numbering/sub-sectioning work!
+
+Why not just use Markdown? Markdown doesn't support nested numbering like the following:
 
 1* First item
     * First item's first sub-item
 * Second Item
 
-If you tried to do it, you might write something like this:
+If you _tried_ to do it, you might _write_ something like this:
 
-```
+```markdown
 1. First item
     1.1. First item's first sub-item
 2. Second Item
@@ -21,10 +24,10 @@ But you would unfortunately get something that looks like this:
     1.1. First item's first sub-item
 2. Second Item
 
-While you could manage the numbering by hand manually via some hacky solutions, if you later need to _insert_ an item, you have to do a lot of renumbering. It sucks and is not something you can do easily once you start having to manage larger nested lists.
+While you could manage the numbering by hand manually via [some hacky solutions](https://meta.stackexchange.com/questions/85474/how-to-write-nested-numbered-lists), if you later need to _insert_ an item, you have to do a lot of renumbering. It sucks and is not something you can do easily once you start having to manage larger nested lists.
 
 Our renumbering concern applies to the normal ordered lists that Markdown supports. They might seem nice in principle:
-```
+```markdown
 1. First Item
 2. Second Item
 3. Third Item
@@ -38,7 +41,7 @@ Our renumbering concern applies to the normal ordered lists that Markdown suppor
 But, again, there's something really annoying about having to renumber extensive lists.
 
 So, as an alternate syntax, how about this instead?:
-```
+```wittgenstein
 1* First Item
 * Second Item
 * Third Item
@@ -54,7 +57,7 @@ And, it works:
 Now, taking the previous innovation in mind, we added support for our numbered nesting simply by indicating each level clearly.
 
 So, here is the original markup for the first example we gave:
-```
+```wittgenstein
 1* First item
     * First item's first sub-item
 * Second Item
@@ -62,7 +65,7 @@ So, here is the original markup for the first example we gave:
 
 And it works, too, because this very README used this Wittgenstein-influenced markup language to produce its examples. (The very first example of a list we gave in this README was originally written in this style.)
 
-So, basically, indent (with 4 spaces) as you would normally, and Wittgenstein does the rest!
+So, basically, when nesting, indent (with 4 spaces) and use `*`s as you would normally, and Wittgenstein does the rest! Just remember to preface your first star with a `1`. 
 
 
 ## How Wittgenstein Works
@@ -70,7 +73,7 @@ Keep in mind this is a proof-of-concept written on a Saturday night. Currently, 
 
 It was first a simple generator of indentions for plaintext files and then I decided I wanted to be able to generate Markdown files. Since Markdown supports HTML, the way Wittgenstein works _for Markdown_ is to simply generate HTML tags and let CSS handle the numbering. (Since I added support for Markdown _after_ I had figured out the more-straightforward indention logic for plaintext (which didn't actually require me to do any lookaheads or lookbacks), the logic I added for handling nested HTML tags is confusing as heck — but it works.)
 
-Apparently, GitHub doesn't support `<styles>` in Markdown, so the numbering appears incorrect there. 😭 
+Apparently, GitHub doesn't support `<styles>` in Markdown, so the numbering appears slightly incorrect there — instead of `1.1.1.`, we get `1.i.a`. 😭 
 
 There's still support for the plain, indention-based numbering. I'm leaving the HTML mode as the default because it is more impressive.
 
@@ -120,5 +123,5 @@ pip3 install markdown
 * Support `a*` listing.
 * Support `N*` listing, where `N` is any number (right now we can only start at `1`)
 * Support `w*` listing (one that uses the exact style of numbering that the _Tractatus Logico-Philosophicus_ does — though I like the style of this version more, we handle empty nodes differently than the TLP and end up with different numbers.)
-* Consider how we might reference another item by number? (We'd have to add support for IDs)
 * There's some other stuff I'd like have a markup language support (such as simple diagrams), though I'm undecided on a syntax for the time being — this project may grow to support other newish markup features.
+* Support numbering in `>`s

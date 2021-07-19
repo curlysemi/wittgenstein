@@ -13,18 +13,38 @@ Error: {error}
     print_help()
     sys.exit()
 
-# # Check if enough arguments have been given.
-# if len(sys.argv) < 3:
-#     print_error("Please provide an input file path and an output file path!")
+# https://stackoverflow.com/a/3663505
+def rchop(s, suffix):
+    if suffix and s.endswith(suffix):
+        return s[:-len(suffix)]
+    return s
 
-input_path = "README.wit"#sys.argv[1]
-output_path = "README.md"#sys.argv[2]
+def lchop(s, prefix):
+    if prefix and s.startswith(prefix):
+        return s[len(prefix):]
+    return s
+
+
+# Check if enough arguments have been given.
+if len(sys.argv) < 2:
+    print_error("Please provide an input file path (and, optionally, an output file path)!")
+
+input_path = sys.argv[1]
+if not (os.path.isfile(input_path)):
+    print_error("Either file path is malformed or there is a permissions issue?")
+if not (input_path.lower().endswith('.wit')):
+    print_error("Input is not a '.wit' file!")
+
+output_path = ''
+if len(sys.argv) > 2:
+    output_path = sys.argv[2]
+else:
+    # by default, we'll assume Markdown
+    output_path = rchop(input_path, '.wit') + '.md'
+
 output_format = "html"
 if len(sys.argv) > 3:
     output_format = sys.argv[3] # for now, this in undocumented behavior
-
-if not (os.path.isfile(input_path)):
-    print_error("Either file path is malformed or there is a permissions issue?")
 
 USE_HTML_FOR_NESTED_COUNTERS = output_format == 'html'
 SPACES = "    "
@@ -49,16 +69,7 @@ def count_your_lucky_stars(line):
             is_start_of_numbered_stars = True
     return stars, is_start_of_numbered_stars, clean_line
 
-# https://stackoverflow.com/a/3663505
-def rchop(s, suffix):
-    if suffix and s.endswith(suffix):
-        return s[:-len(suffix)]
-    return s
 
-def lchop(s, prefix):
-    if prefix and s.startswith(prefix):
-        return s[len(prefix):]
-    return s
 
 output = []
 output_og_idxs = []
