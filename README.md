@@ -1,17 +1,20 @@
 <style>
-ol.wit-nest {
-  counter-reset: item
-}
-li.wit-item {
-  display: block
-}
-li.wit-item:before {
-  content: counters(item, ".") ". ";
-  counter-increment: item
-}
-ol.wit-nest p {
-    display: inline;
-}
+    ol.wit-nest {
+        counter-reset: item
+    }
+    li.wit-item {
+        display: block
+    }
+    li.wit-item:before {
+        content: counters(item, ".") ". ";
+        counter-increment: item
+    }
+    li.wit-collapsed:before {
+        color: red;
+    }
+    ol.wit-nest p {
+        display: inline;
+    }
 </style>
 # Wittgenstein Markup Language (`.wit`)
 The markup language dedicated to writing complicated, nested lists. You could use it to write the next _Tractatus Logico-Philosophicus_ and not have to worry about the numberings (they're all done automatically). 🙂
@@ -22,7 +25,7 @@ Don't forget that Wittgenstein _invented_ truth tables as (basically) an aside i
 
 Why not just use Markdown? Markdown doesn't support nested numbering like the following:
 
-<ol class="wit-nest" markdown="1"><li class="wit-item" markdown="1"><p>First item</p><ol class="wit-nest" markdown="1"><li class="wit-item" markdown="1"><p>First item's first sub-item</p></li></ol></li><li class="wit-item" markdown="1"><p>Second Item</p></li></ol>
+<ol class="wit-nest wit-root" markdown="1" id="witroot_1"><li class="wit-item" markdown="1" data-wit-content-id="t1_n1._content"><p>First item</p><ol class="wit-nest " markdown="1" id="t1_n1._content"><li class="wit-item" markdown="1" data-wit-content-id="t1_n1.1._content"><p>First item's first sub-item</p></li></ol></li><li class="wit-item" markdown="1" data-wit-content-id="t1_n2._content"><p>Second Item</p></li></ol>
 
 If you _tried_ to do it, you might _write_ something like this:
 
@@ -63,7 +66,7 @@ It should be enough to show that the intent was an ordered list using numbers wi
 
 And, it works:
 
-<ol class="wit-nest" markdown="1"><li class="wit-item" markdown="1"><p>First Item</p></li><li class="wit-item" markdown="1"><p>Second Item</p></li><li class="wit-item" markdown="1"><p>Third Item</p></li></ol>
+<ol class="wit-nest wit-root" markdown="1" id="witroot_2"><li class="wit-item" markdown="1" data-wit-content-id="t2_n1._content"><p>First Item</p></li><li class="wit-item" markdown="1" data-wit-content-id="t2_n2._content"><p>Second Item</p></li><li class="wit-item" markdown="1" data-wit-content-id="t2_n3._content"><p>Third Item</p></li></ol>
 
 Now, taking the previous innovation in mind, we added support for our numbered nesting simply by indicating each level clearly.
 
@@ -92,15 +95,16 @@ There's still support for the plain, indention-based numbering. I'm leaving the 
 ## Complicated Examples
 The following is a complicated nesting example (I'm actually using this README to hold the test cases since this README is written in the `.wit` markup language and is simple being exported to Markdown.).
 
-<ol class="wit-nest" markdown="1"><li class="wit-item" markdown="1"><p>The world is all that is the case.</p><ol class="wit-nest" markdown="1"><li class="wit-item" markdown="1"><p>The world is the totality of facts, not of things.</p><ol class="wit-nest" markdown="1"><li class="wit-item" markdown="1"><p>The world is determined by the facts, and by their being all the facts.</p></li><li class="wit-item" markdown="1"><p>For the totality of facts determines what is the case, and also whatever is not the case.</p></li><li class="wit-item" markdown="1"><p>The facts in logical space are the world.</p></li></ol></li><li class="wit-item" markdown="1"><p>The world divides into facts.</p><ol class="wit-nest" markdown="1"><li class="wit-item" markdown="1"><p>Each item can be the case or not the case while everything else remains the same.</p></li></ol></ol></ol>
+<ol class="wit-nest wit-root" markdown="1" id="witroot_3"><li class="wit-item" markdown="1" data-wit-content-id="t3_n1._content"><p>The world is all that is the case.</p><ol class="wit-nest " markdown="1" id="t3_n1._content"><li class="wit-item" markdown="1" data-wit-content-id="t3_n1.1._content"><p>The world is the totality of facts, not of things.</p><ol class="wit-nest " markdown="1" id="t3_n1.1._content"><li class="wit-item" markdown="1" data-wit-content-id="t3_n1.1.1._content"><p>The world is determined by the facts, and by their being all the facts.</p></li><li class="wit-item" markdown="1" data-wit-content-id="t3_n1.1.2._content"><p>For the totality of facts determines what is the case, and also whatever is not the case.</p></li><li class="wit-item" markdown="1" data-wit-content-id="t3_n1.1.3._content"><p>The facts in logical space are the world.</p></li></ol></li><li class="wit-item" markdown="1" data-wit-content-id="t3_n1.2._content"><p>The world divides into facts.</p><ol class="wit-nest " markdown="1" id="t3_n1.2._content"><li class="wit-item" markdown="1" data-wit-content-id="t3_n1.2.1._content"><p>Each item can be the case or not the case while everything else remains the same.</p></li></ol></ol></ol>
 
 And because I don't wish to include the full _Tractatus Logico-Philosophicus_ in this README, we'll provide an nesting edge-case:
 
-<ol class="wit-nest" markdown="1"><li class="wit-item" markdown="1"><p>This is a simple item</p><ol class="wit-nest" markdown="1"><li class="wit-item" markdown="1"><ol class="wit-nest" markdown="1"><li class="wit-item" markdown="1"><ol class="wit-nest" markdown="1"><li class="wit-item" markdown="1"><p>This is a complicated item with some empty parent nodes</p></li></ol></li><li class="wit-item" markdown="1"><p>This is actually a more complicated item</p><ol class="wit-nest" markdown="1"><li class="wit-item" markdown="1"><p>An earlier version had bugs and gave the wrong numbers in these situations</p></li></ol></li></ol></li></ol></li><li class="wit-item" markdown="1"><p>This is another simple item</p><ol class="wit-nest" markdown="1"><li class="wit-item" markdown="1"><p>We want to make sure that this item (and its successors) is numbered properly</p><ol class="wit-nest" markdown="1"><li class="wit-item" markdown="1"><p>Is this one numbered correctly?</p><ol class="wit-nest" markdown="1"><li class="wit-item" markdown="1"><p>What about this one?</p></li><li class="wit-item" markdown="1"><p>Don't forget this one!</p></li></ol></li></ol></li></ol></li><li class="wit-item" markdown="1"><p><em>What about support for Markdown syntax in the items themselves?</em></p></li><li class="wit-item" markdown="1"><p><a name="id"></a>If I want to be <em>able</em> to link, I have to give the line an ID</p><ol class="wit-nest" markdown="1"><li class="wit-item" markdown="1"><p><a name="nested_id"></a>Don't forget nested ones!</p></li></ol></li><li class="wit-item" markdown="1"><p>Then, if I want to make a link, I can simply refer to <a href="#id">§4</a>.</p><ol class="wit-nest" markdown="1"><li class="wit-item" markdown="1"><p>I can also refer to <a href="#nested_id">§4.1</a> (as well as <a href="#id">§4</a> in the same line)</p><ol class="wit-nest" markdown="1"><li class="wit-item" markdown="1"><p>And I can refer to <a href="#forward_ref">§6</a></p></li></ol></li></ol></li><li class="wit-item" markdown="1"><p><a name="forward_ref"></a>Despite the line break above, <em>we</em> have decided we want to consider this part of the same list to allow for more formatting flexibility</p></li></ol>
+<ol class="wit-nest wit-root" markdown="1" id="witroot_4"><li class="wit-item" markdown="1" data-wit-content-id="t4_n1._content"><p>This is a simple item</p><ol class="wit-nest " markdown="1" id="t4_n1._content"><li class="wit-item" markdown="1" data-wit-content-id="t4_n1.1._content"><ol class="wit-nest " markdown="1" id="t4_n1.1._content"><li class="wit-item" markdown="1" data-wit-content-id="t4_n1.1.1._content"><ol class="wit-nest " markdown="1" id="t4_n1.1.1._content"><li class="wit-item" markdown="1" data-wit-content-id="t4_n1.1.1.1._content"><p>This is a complicated item with some empty parent nodes</p></li></ol></li><li class="wit-item" markdown="1" data-wit-content-id="t4_n1.1.2._content"><p>This is actually a more complicated item</p><ol class="wit-nest " markdown="1" id="t4_n1.1.2._content"><li class="wit-item" markdown="1" data-wit-content-id="t4_n1.1.2.1._content"><p>An earlier version had bugs and gave the wrong numbers in these situations</p></li></ol></li></ol></li></ol></li><li class="wit-item" markdown="1" data-wit-content-id="t4_n2._content"><p>This is another simple item</p><ol class="wit-nest " markdown="1" id="t4_n2._content"><li class="wit-item" markdown="1" data-wit-content-id="t4_n2.1._content"><p>We want to make sure that this item (and its successors) is numbered properly</p><ol class="wit-nest " markdown="1" id="t4_n2.1._content"><li class="wit-item" markdown="1" data-wit-content-id="t4_n2.1.1._content"><p>Is this one numbered correctly?</p><ol class="wit-nest " markdown="1" id="t4_n2.1.1._content"><li class="wit-item" markdown="1" data-wit-content-id="t4_n2.1.1.1._content"><p>What about this one?</p></li><li class="wit-item" markdown="1" data-wit-content-id="t4_n2.1.1.2._content"><p>Don't forget this one!</p></li></ol></li></ol></li></ol></li><li class="wit-item" markdown="1" data-wit-content-id="t4_n3._content"><p><em>What about support for Markdown syntax in the items themselves?</em></p></li><li class="wit-item" markdown="1" data-wit-content-id="t4_n4._content"><p><a name="id"></a>If I want to be <em>able</em> to link, I have to give the line an ID</p><ol class="wit-nest " markdown="1" id="t4_n4._content"><li class="wit-item" markdown="1" data-wit-content-id="t4_n4.1._content"><p><a name="nested_id"></a>Don't forget nested ones!</p></li></ol></li><li class="wit-item" markdown="1" data-wit-content-id="t4_n5._content"><p>Then, if I want to make a link, I can simply refer to <a href="#id">§4</a>.</p><ol class="wit-nest " markdown="1" id="t4_n5._content"><li class="wit-item" markdown="1" data-wit-content-id="t4_n5.1._content"><p>I can also refer to <a href="#nested_id">§4.1</a> (as well as <a href="#id">§4</a> in the same line)</p><ol class="wit-nest " markdown="1" id="t4_n5.1._content"><li class="wit-item" markdown="1" data-wit-content-id="t4_n5.1.1._content"><p>And I can refer to <a href="#forward_ref">§6</a></p></li></ol></li></ol></li><li class="wit-item" markdown="1" data-wit-content-id="t4_n6._content"><p><a name="forward_ref"></a>Despite the line break above, <em>we</em> have decided we want to consider this part of the same list to allow for more formatting flexibility</p></li></ol>
 
 
 
 * BUT, this line starts a new list (because there's two blank lines) (and isn't numbered because it doesn't start with `1*`)
+
 ## Dependencies
 ```
 pip3 install markdown
@@ -114,3 +118,22 @@ pip3 install markdown
 * Support `w*` listing (one that uses the exact style of numbering that the _Tractatus Logico-Philosophicus_ does — though I like the style of this version more, we handle empty nodes differently than the TLP and end up with different numbers.)
 * There's some other stuff I'd like have a markup language support (such as simple diagrams), though I'm undecided on a syntax for the time being — this project may grow to support other newish markup features.
 * Support numbering in `>`s
+
+<script>
+    var witItems = document.getElementsByClassName("wit-item");
+    for (var i = 0; i < witItems.length; i++) {
+        witItems[i].addEventListener("click", function(event) {
+            var contentID = this.getAttribute('data-wit-content-id');
+            var content = document.getElementById(contentID);
+            if (content) {
+                this.classList.toggle("wit-collapsed");
+                if (content.style.display === "block" || content.style.display === "") {
+                    content.style.display = "none";
+                } else {
+                    content.style.display = "block";
+                }
+            }
+            event.stopPropagation();
+        });
+    }
+</script>

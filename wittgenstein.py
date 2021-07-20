@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import sys, os.path, markdown, re
+from types import new_class
 
 def print_help():
     print(f"""Usage: $ python3 wittgenstein [input file path] [output file path]
@@ -25,11 +26,11 @@ def lchop(s, prefix):
     return s
 
 
-# Check if enough arguments have been given.
-if len(sys.argv) < 2:
-    print_error("Please provide an input file path (and, optionally, an output file path)!")
+# # Check if enough arguments have been given.
+# if len(sys.argv) < 2:
+#     print_error("Please provide an input file path (and, optionally, an output file path)!")
 
-input_path = sys.argv[1]
+input_path = "README.wit"#sys.argv[1]
 if not (os.path.isfile(input_path)):
     print_error("Either file path is malformed or there is a permissions issue?")
 if not (input_path.lower().endswith('.wit')):
@@ -49,9 +50,11 @@ if len(sys.argv) > 3:
 USE_HTML_FOR_NESTED_COUNTERS = output_format == 'html'
 SPACES = "    "
 
-OPEN_OL = '<ol class="wit-nest" markdown="1">'
+def OPEN_OL(id, class_name = ''):
+    return f'<ol class="wit-nest {class_name}" markdown="1" id="{id}">'
 CLOSE_OL = '</ol>'
-OPEN_LI = '<li class="wit-item" markdown="1">'
+def OPEN_LI(id):
+    return f'<li class="wit-item" markdown="1" data-wit-content-id="{id}">'
 CLOSE_LI = '</li>'
 
 with open(input_path) as fin:
@@ -82,6 +85,7 @@ star_counts = {}
 previous_num_stars = 0
 disable = False
 previous_line_blank = False
+num_trees = 0
 
 def close_old_list(idx, line):
     global lucky_stars_are_numbered, previous_num_stars, star_counts, previous_line_blank
@@ -113,26 +117,31 @@ for idx, line in enumerate(content):
             num_stars = 0
         else:
             line = clean_line
-    isStartOfStars = ((previous_num_stars == 0 and num_stars > 0) or is_start_of_numbered_stars) and not disable
+    is_start_of_stars = ((previous_num_stars == 0 and num_stars > 0) or is_start_of_numbered_stars) and not disable
+    if is_start_of_stars:
+        num_trees = num_trees + 1
     if is_start_of_numbered_stars and not disable:
         lucky_stars_are_numbered = True
 
-    if USE_HTML_FOR_NESTED_COUNTERS and isStartOfStars and not added_css:
+    if USE_HTML_FOR_NESTED_COUNTERS and is_start_of_stars and not added_css:
         output_og_idxs.insert(0, -1)
         output.insert(0, """<style>
-ol.wit-nest {
-  counter-reset: item
-}
-li.wit-item {
-  display: block
-}
-li.wit-item:before {
-  content: counters(item, ".") ". ";
-  counter-increment: item
-}
-ol.wit-nest p {
-    display: inline;
-}
+    ol.wit-nest {
+        counter-reset: item
+    }
+    li.wit-item {
+        display: block
+    }
+    li.wit-item:before {
+        content: counters(item, ".") ". ";
+        counter-increment: item
+    }
+    li.wit-collapsed:before {
+        color: red;
+    }
+    ol.wit-nest p {
+        display: inline;
+    }
 </style>
 """)
         added_css = True
@@ -148,7 +157,7 @@ ol.wit-nest p {
             num = ""
             html = ""
             if is_start_of_numbered_stars:
-                html = OPEN_OL
+                html = OPEN_OL(f'witroot_{num_trees}', 'wit-root')
             temp = num_stars
             is_end_branch = False
             is_new_branch = False
@@ -168,12 +177,21 @@ ol.wit-nest p {
                 num = str(star_counts[temp]) + "." + num
                 temp = temp - 1
             if USE_HTML_FOR_NESTED_COUNTERS:
-                opens = OPEN_LI
+                opens = OPEN_LI(f't{num_trees}_n{num}_content')
                 closes = CLOSE_LI
                 if is_new_branch:
                     diff = (num_stars - previous_num_stars)
-                    opens = (OPEN_OL + OPEN_LI) * diff
-                    output[len(output)-1] =  rchop(output[len(output)-1], CLOSE_LI)
+                    temp_opens = ''
+                    for mini_diff in range(diff): # reverse range if wrong order
+                        temp_num_data = num.split('.')[:-1]
+                        this_num = num
+                        if mini_diff != 0:
+                            this_num = '.'.join(temp_num_data[:(-1 * (mini_diff))]) + '.'
+                        content_num = '.'.join(temp_num_data[:(-1 * (mini_diff + 1))]) + '.'
+                        temp_opens =  OPEN_OL(f't{num_trees}_n{content_num}_content') + OPEN_LI(f't{num_trees}_n{this_num}_content') + temp_opens
+                    opens = temp_opens
+                    # opens = (OPEN_OL(f't{num_trees}_n{content_num}_content') + opens) * diff
+                    output[len(output)-1] = rchop(output[len(output)-1], CLOSE_LI)
                 if is_end_branch:
                     diff = (previous_num_stars - num_stars)
                     opens = ((CLOSE_OL + CLOSE_LI) * diff) + opens
@@ -221,6 +239,28 @@ for idx, line in enumerate(output):
             raise
     except:
         print_error(f'There is a problem (potentially with references) on line {output_og_idxs[idx] + 1}')
+
+if added_css:
+    output.append("""
+<script>
+    var witItems = document.getElementsByClassName("wit-item");
+    for (var i = 0; i < witItems.length; i++) {
+        witItems[i].addEventListener("click", function(event) {
+            var contentID = this.getAttribute('data-wit-content-id');
+            var content = document.getElementById(contentID);
+            if (content) {
+                this.classList.toggle("wit-collapsed");
+                if (content.style.display === "block" || content.style.display === "") {
+                    content.style.display = "none";
+                } else {
+                    content.style.display = "block";
+                }
+            }
+            event.stopPropagation();
+        });
+    }
+</script>
+""")
 
 with open(output_path, 'w+') as fout:
     fout.writelines(output)
