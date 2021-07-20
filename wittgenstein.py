@@ -26,11 +26,11 @@ def lchop(s, prefix):
     return s
 
 
-# # Check if enough arguments have been given.
-# if len(sys.argv) < 2:
-#     print_error("Please provide an input file path (and, optionally, an output file path)!")
+# Check if enough arguments have been given.
+if len(sys.argv) < 2:
+    print_error("Please provide an input file path (and, optionally, an output file path)!")
 
-input_path = "README.wit"#sys.argv[1]
+input_path = sys.argv[1]
 if not (os.path.isfile(input_path)):
     print_error("Either file path is malformed or there is a permissions issue?")
 if not (input_path.lower().endswith('.wit')):
