@@ -123,6 +123,9 @@ pip3 install markdown
     var witItems = document.getElementsByClassName("wit-item");
     for (var i = 0; i < witItems.length; i++) {
         witItems[i].addEventListener("click", function(event) {
+            if (event.target !== this && event.target.nodeName === 'A' && event.target.href) {
+                return;
+            }
             var contentID = this.getAttribute('data-wit-content-id');
             var content = document.getElementById(contentID);
             if (content) {
