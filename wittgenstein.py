@@ -68,13 +68,16 @@ def count_your_lucky_stars(line):
     stars = 0
     is_start_of_numbered_stars = False
     clean_line = line.lstrip()
-    if clean_line.startswith('*') or clean_line.startswith('1*'):
-        leadingWhiteSpace = re.match(r"\s*", line).group() # TODO: performance testing (other approaches)
-        leadingWhiteSpace = leadingWhiteSpace.replace('\t', SPACES)
-        stars = (len(leadingWhiteSpace) // len(SPACES)) + 1
-        if clean_line[0] == '1':
-            is_start_of_numbered_stars = True
-    return stars, is_start_of_numbered_stars, clean_line
+    is_new_bullet_point = clean_line.startswith('*') or clean_line.startswith('1*')
+    try:
+         leadingWhiteSpace = re.match(r"\s*", line).group() # TODO: performance testing (other approaches)
+         leadingWhiteSpace = leadingWhiteSpace.replace('\t', SPACES)
+         stars = (len(leadingWhiteSpace) // len(SPACES)) + 1
+         if clean_line[0] == '1':
+            is_start_of_numbered_stars = is_new_bullet_point
+    except:
+        pass
+    return is_new_bullet_point, stars, is_start_of_numbered_stars, clean_line
 
 
 
@@ -115,7 +118,12 @@ for idx, line in enumerate(content):
 
     if line.startswith('```'):
         disable = not disable
-    num_stars, is_start_of_numbered_stars, clean_line = count_your_lucky_stars(line)
+    is_new_bullet_point, num_stars, is_start_of_numbered_stars, clean_line = count_your_lucky_stars(line)
+
+    should_show_as_continuation = not is_new_bullet_point and num_stars == previous_num_stars and previous_num_stars > 0
+    if not is_new_bullet_point:
+        num_stars = 0
+
     if num_stars > 0:
         if disable:
             num_stars = 0
@@ -149,10 +157,10 @@ for idx, line in enumerate(content):
             .wit-hide {
                 display: none;
             }
-        </style>""")
+        </style>""" + '\n')
         added_css = True
 
-    if num_stars > 0:
+    if is_new_bullet_point and num_stars > 0:
         num_characters = 0
         if not USE_HTML_FOR_NESTED_COUNTERS and lucky_stars_are_numbered:
             num_characters = 1
@@ -230,7 +238,12 @@ for idx, line in enumerate(content):
         output_og_idxs.append(idx)
         previous_num_stars = num_stars
     else:
-        close_old_list(idx, line)
+        if should_show_as_continuation > 0 and not previous_line_blank:
+            output[len(output)-1] = rchop(output[len(output)-1], CLOSE_LI)
+            output.append('<br />&emsp;' + line + CLOSE_LI)
+            output_og_idxs.append(idx)
+        else:
+            close_old_list(idx, line)
 
 for idx, line in enumerate(output):
     try:
