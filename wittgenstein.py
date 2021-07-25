@@ -148,6 +148,9 @@ for idx, line in enumerate(content):
                 content: counters(item, ".") ". ";
                 counter-increment: item
             }
+            li.wit-item:before {
+                color: mistyrose;
+            }
             li.wit-collapsed:before {
                 color: red;
             }
@@ -240,7 +243,8 @@ for idx, line in enumerate(content):
     else:
         if should_show_as_continuation > 0 and not previous_line_blank:
             output[len(output)-1] = rchop(output[len(output)-1], CLOSE_LI)
-            output.append('<br />&emsp;' + line + CLOSE_LI)
+            htmlized_line = markdown.markdown(line.strip())
+            output.append('<br />&emsp;' + htmlized_line + CLOSE_LI)
             output_og_idxs.append(idx)
         else:
             close_old_list(idx, line)
