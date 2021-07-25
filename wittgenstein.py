@@ -47,6 +47,10 @@ output_format = "html"
 if len(sys.argv) > 3:
     output_format = sys.argv[3] # for now, this in undocumented behavior
 
+load_open = True
+if len(sys.argv) > 4:
+    load_open = sys.argv[4] != 'load-collapsed'
+
 USE_HTML_FOR_NESTED_COUNTERS = output_format == 'html'
 SPACES = "    "
 
@@ -126,24 +130,26 @@ for idx, line in enumerate(content):
     if USE_HTML_FOR_NESTED_COUNTERS and is_start_of_stars and not added_css:
         output_og_idxs.insert(0, -1)
         output.insert(0, """<style>
-    ol.wit-nest {
-        counter-reset: item
-    }
-    li.wit-item {
-        display: block
-    }
-    li.wit-item:before {
-        content: counters(item, ".") ". ";
-        counter-increment: item
-    }
-    li.wit-collapsed:before {
-        color: red;
-    }
-    ol.wit-nest p {
-        display: inline;
-    }
-</style>
-""")
+            ol.wit-nest {
+                counter-reset: item
+            }
+            li.wit-item {
+                display: block
+            }
+            li.wit-item:before {
+                content: counters(item, ".") ". ";
+                counter-increment: item
+            }
+            li.wit-collapsed:before {
+                color: red;
+            }
+            ol.wit-nest p {
+                display: inline;
+            }
+            .wit-hide {
+                display: none;
+            }
+        </style>""")
         added_css = True
 
     if num_stars > 0:
@@ -241,29 +247,29 @@ for idx, line in enumerate(output):
         print_error(f'There is a problem (potentially with references) on line {output_og_idxs[idx] + 1}')
 
 if added_css:
-    output.append("""
-<script>
-    var witItems = document.getElementsByClassName("wit-item");
-    for (var i = 0; i < witItems.length; i++) {
-        witItems[i].addEventListener("click", function(event) {
-            if (event.target !== this && event.target.nodeName === 'A' && event.target.href) {
-                return;
-            }
-            var contentID = this.getAttribute('data-wit-content-id');
-            var content = document.getElementById(contentID);
-            if (content) {
-                this.classList.toggle("wit-collapsed");
-                if (content.style.display === "block" || content.style.display === "") {
-                    content.style.display = "none";
-                } else {
-                    content.style.display = "block";
+    script = """
+        var witItems = document.getElementsByClassName("wit-item");
+        for (var i = 0; i < witItems.length; i++) {
+            witItems[i].addEventListener("click", function(event) {
+                if (event.target !== this && event.target.nodeName === 'A' && event.target.href) {
+                    return;
                 }
-            }
-            event.stopPropagation();
-        });
-    }
-</script>
-""")
+                var contentID = this.getAttribute('data-wit-content-id');
+                var content = document.getElementById(contentID);
+                if (content) {
+                    this.classList.toggle("wit-collapsed");
+                    content.classList.toggle("wit-hide");
+                }
+                event.stopPropagation();
+            });
+        """
+    if not load_open:
+        script = script + """
+            witItems[i].click();
+        """
+    script = script + "}"
+    output.append(f'<script>{script}</script>')
+
 
 with open(output_path, 'w+') as fout:
     fout.writelines(output)

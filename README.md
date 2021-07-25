@@ -1,22 +1,24 @@
 <style>
-    ol.wit-nest {
-        counter-reset: item
-    }
-    li.wit-item {
-        display: block
-    }
-    li.wit-item:before {
-        content: counters(item, ".") ". ";
-        counter-increment: item
-    }
-    li.wit-collapsed:before {
-        color: red;
-    }
-    ol.wit-nest p {
-        display: inline;
-    }
-</style>
-# Wittgenstein Markup Language (`.wit`)
+            ol.wit-nest {
+                counter-reset: item
+            }
+            li.wit-item {
+                display: block
+            }
+            li.wit-item:before {
+                content: counters(item, ".") ". ";
+                counter-increment: item
+            }
+            li.wit-collapsed:before {
+                color: red;
+            }
+            ol.wit-nest p {
+                display: inline;
+            }
+            .wit-hide {
+                display: none;
+            }
+        </style># Wittgenstein Markup Language (`.wit`)
 The markup language dedicated to writing complicated, nested lists. You could use it to write the next _Tractatus Logico-Philosophicus_ and not have to worry about the numberings (they're all done automatically). 🙂
 
 ## What Wittgenstein Does
@@ -118,25 +120,21 @@ pip3 install markdown
 * Support `w*` listing (one that uses the exact style of numbering that the _Tractatus Logico-Philosophicus_ does — though I like the style of this version more, we handle empty nodes differently than the TLP and end up with different numbers.)
 * There's some other stuff I'd like have a markup language support (such as simple diagrams), though I'm undecided on a syntax for the time being — this project may grow to support other newish markup features.
 * Support numbering in `>`s
-
 <script>
-    var witItems = document.getElementsByClassName("wit-item");
-    for (var i = 0; i < witItems.length; i++) {
-        witItems[i].addEventListener("click", function(event) {
-            if (event.target !== this && event.target.nodeName === 'A' && event.target.href) {
-                return;
-            }
-            var contentID = this.getAttribute('data-wit-content-id');
-            var content = document.getElementById(contentID);
-            if (content) {
-                this.classList.toggle("wit-collapsed");
-                if (content.style.display === "block" || content.style.display === "") {
-                    content.style.display = "none";
-                } else {
-                    content.style.display = "block";
+        var witItems = document.getElementsByClassName("wit-item");
+        for (var i = 0; i < witItems.length; i++) {
+            witItems[i].addEventListener("click", function(event) {
+                if (event.target !== this && event.target.nodeName === 'A' && event.target.href) {
+                    return;
                 }
-            }
-            event.stopPropagation();
-        });
-    }
-</script>
+                var contentID = this.getAttribute('data-wit-content-id');
+                var content = document.getElementById(contentID);
+                if (content) {
+                    this.classList.toggle("wit-collapsed");
+                    content.classList.toggle("wit-hide");
+                }
+                event.stopPropagation();
+            });
+        
+            witItems[i].click();
+        }</script>
