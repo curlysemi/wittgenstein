@@ -138,6 +138,4 @@ pip3 install markdown
                 }
                 event.stopPropagation();
             });
-        
-            witItems[i].click();
         }</script>
